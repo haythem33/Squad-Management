@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Match;
 use App\Models\Player;
 use App\Models\Team;
+use App\Policies\MatchPolicy;
 use App\Policies\PlayerPolicy;
 use App\Policies\TeamPolicy;
 use Illuminate\Support\Facades\Gate;
@@ -27,5 +29,6 @@ class AppServiceProvider extends ServiceProvider
         // Register model policies
         Gate::policy(Team::class, TeamPolicy::class);
         Gate::policy(Player::class, PlayerPolicy::class);
+        Gate::policy(Match::class, MatchPolicy::class);
     }
 }
