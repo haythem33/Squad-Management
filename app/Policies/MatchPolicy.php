@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Models\Match;
+use App\Models\GameMatch;
 use App\Models\User;
 
 class MatchPolicy
@@ -19,7 +19,7 @@ class MatchPolicy
      * Determine whether the user can view the match.
      * User must own the team that the match belongs to.
      */
-    public function view(User $user, Match $match): bool
+    public function view(User $user, GameMatch $match): bool
     {
         return $user->id === $match->team->user_id;
     }
@@ -36,7 +36,7 @@ class MatchPolicy
      * Determine whether the user can update the match.
      * User must own the team that the match belongs to.
      */
-    public function update(User $user, Match $match): bool
+    public function update(User $user, GameMatch $match): bool
     {
         return $user->id === $match->team->user_id;
     }
@@ -45,7 +45,7 @@ class MatchPolicy
      * Determine whether the user can delete the match.
      * User must own the team that the match belongs to.
      */
-    public function delete(User $user, Match $match): bool
+    public function delete(User $user, GameMatch $match): bool
     {
         return $user->id === $match->team->user_id;
     }
@@ -54,7 +54,7 @@ class MatchPolicy
      * Determine whether the user can manage the lineup for the match.
      * User must own the team that the match belongs to.
      */
-    public function manageLineup(User $user, Match $match): bool
+    public function manageLineup(User $user, GameMatch $match): bool
     {
         return $user->id === $match->team->user_id;
     }

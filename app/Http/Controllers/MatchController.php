@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreMatchRequest;
 use App\Http\Requests\UpdateLineupRequest;
 use App\Http\Requests\UpdateMatchRequest;
-use App\Models\Match;
+use App\Models\GameMatch;
 use App\Models\Player;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -20,7 +20,7 @@ class MatchController extends Controller
     {
         // Get all matches from the user's teams
         // Use eager loading to prevent N+1 queries
-        $matches = Match::whereHas('team', function ($query) {
+        $matches = GameMatch::whereHas('team', function ($query) {
             $query->where('user_id', auth()->id());
         })
             ->with('team') // Eager load the team relationship
@@ -35,7 +35,7 @@ class MatchController extends Controller
      */
     public function create(): View
     {
-        $this->authorize('create', Match::class);
+        $this->authorize('create', GameMatch::class);
 
         // Get only the teams owned by the authenticated user
         $teams = auth()->user()->teams;
@@ -48,11 +48,11 @@ class MatchController extends Controller
      */
     public function store(StoreMatchRequest $request): RedirectResponse
     {
-        $this->authorize('create', Match::class);
+        $this->authorize('create', GameMatch::class);
 
         $validated = $request->validated();
 
-        $match = Match::create($validated);
+        $match = GameMatch::create($validated);
 
         return redirect()->route('matches.show', $match)
             ->with('success', 'Match created successfully.');
@@ -62,7 +62,7 @@ class MatchController extends Controller
      * Display the specified match.
      * Eager loads players with pivot data (goals, minutes_played).
      */
-    public function show(Match $match): View
+    public function show(GameMatch $match): View
     {
         $this->authorize('view', $match);
 
@@ -84,7 +84,7 @@ class MatchController extends Controller
     /**
      * Show the form for editing the specified match.
      */
-    public function edit(Match $match): View
+    public function edit(GameMatch $match): View
     {
         $this->authorize('update', $match);
 
@@ -97,7 +97,7 @@ class MatchController extends Controller
     /**
      * Update the specified match in storage.
      */
-    public function update(UpdateMatchRequest $request, Match $match): RedirectResponse
+    public function update(UpdateMatchRequest $request, GameMatch $match): RedirectResponse
     {
         $this->authorize('update', $match);
 
@@ -112,7 +112,7 @@ class MatchController extends Controller
     /**
      * Remove the specified match from storage.
      */
-    public function destroy(Match $match): RedirectResponse
+    public function destroy(GameMatch $match): RedirectResponse
     {
         $this->authorize('delete', $match);
 
@@ -125,7 +125,7 @@ class MatchController extends Controller
     /**
      * Show the form for managing the match lineup.
      */
-    public function editLineup(Match $match): View
+    public function editLineup(GameMatch $match): View
     {
         $this->authorize('manageLineup', $match);
 
@@ -144,7 +144,7 @@ class MatchController extends Controller
      * Update the lineup for the match.
      * This is the crucial method that syncs players to the match with pivot data.
      */
-    public function updateLineup(UpdateLineupRequest $request, Match $match): RedirectResponse
+    public function updateLineup(UpdateLineupRequest $request, GameMatch $match): RedirectResponse
     {
         $this->authorize('manageLineup', $match);
 

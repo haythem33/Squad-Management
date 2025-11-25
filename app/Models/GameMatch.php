@@ -7,9 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Player extends Model
+class GameMatch extends Model
 {
     use HasFactory;
+
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'matches';
 
     /**
      * The attributes that are mass assignable.
@@ -18,11 +25,13 @@ class Player extends Model
      */
     protected $fillable = [
         'team_id',
-        'name',
-        'position',
-        'jersey_number',
-        'date_of_birth',
-        'photo',
+        'opponent',
+        'match_date',
+        'location',
+        'venue',
+        'team_score',
+        'opponent_score',
+        'status',
     ];
 
     /**
@@ -31,11 +40,11 @@ class Player extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'date_of_birth' => 'date',
+        'match_date' => 'datetime',
     ];
 
     /**
-     * Get the team that owns the player.
+     * Get the team that owns the match.
      */
     public function team(): BelongsTo
     {
@@ -43,12 +52,12 @@ class Player extends Model
     }
 
     /**
-     * Get the matches this player has participated in.
+     * Get the players in this match's lineup.
      * Includes pivot data: goals, minutes_played
      */
-    public function matches(): BelongsToMany
+    public function players(): BelongsToMany
     {
-        return $this->belongsToMany(\App\Models\GameMatch::class, 'match_player', 'player_id', 'match_id')
+        return $this->belongsToMany(Player::class, 'match_player', 'match_id', 'player_id')
             ->withPivot('goals', 'minutes_played')
             ->withTimestamps();
     }

@@ -45,6 +45,6 @@ class Team extends Model
      */
     public function matches(): HasMany
     {
-        return $this->hasMany(Match::class);
+        return $this->hasMany(\App\Models\GameMatch::class);
     }
 }
