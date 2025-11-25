@@ -23,11 +23,11 @@ class UpdateLineupRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'players' => ['required', 'array'],
-            'players.*' => ['required', 'array'],
-            'players.*.id' => ['required', 'exists:players,id'],
-            'players.*.goals' => ['required', 'integer', 'min:0'],
-            'players.*.minutes_played' => ['required', 'integer', 'min:0', 'max:120'],
+            'players' => ['nullable', 'array'],
+            'players.*' => ['nullable', 'array'],
+            'players.*.selected' => ['nullable', 'boolean'],
+            'players.*.goals' => ['nullable', 'integer', 'min:0'],
+            'players.*.minutes' => ['nullable', 'integer', 'min:0', 'max:120'],
         ];
     }
 
@@ -39,17 +39,12 @@ class UpdateLineupRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'players.required' => 'At least one player must be selected.',
             'players.array' => 'Players data must be an array.',
-            'players.*.id.required' => 'Player ID is required.',
-            'players.*.id.exists' => 'One or more selected players do not exist.',
-            'players.*.goals.required' => 'Goals are required for each player.',
             'players.*.goals.integer' => 'Goals must be a number.',
             'players.*.goals.min' => 'Goals cannot be negative.',
-            'players.*.minutes_played.required' => 'Minutes played are required for each player.',
-            'players.*.minutes_played.integer' => 'Minutes played must be a number.',
-            'players.*.minutes_played.min' => 'Minutes played cannot be negative.',
-            'players.*.minutes_played.max' => 'Minutes played cannot exceed 120.',
+            'players.*.minutes.integer' => 'Minutes played must be a number.',
+            'players.*.minutes.min' => 'Minutes played cannot be negative.',
+            'players.*.minutes.max' => 'Minutes played cannot exceed 120.',
         ];
     }
 

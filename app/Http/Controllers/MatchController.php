@@ -67,16 +67,18 @@ class MatchController extends Controller
         $this->authorize('view', $match);
 
         // Eager load relationships to prevent N+1 queries
-        // Include pivot columns for the lineup
+        // Include pivot columns for the lineup and all team players
         $match->load([
-            'team',
+            'team.players', // Load all players in the team for the lineup form
             'players' => function ($query) {
                 $query->withPivot('goals', 'minutes_played')
                       ->orderBy('match_player.id');
             }
         ]);
 
-        return view('matches.show', compact('match'));
+        $team = $match->team;
+
+        return view('matches.show', compact('match', 'team'));
     }
 
     /**
@@ -146,28 +148,36 @@ class MatchController extends Controller
     {
         $this->authorize('manageLineup', $match);
 
-        $playersData = $request->validated()['players'];
+        $playersData = $request->validated()['players'] ?? [];
 
-        // Security Check: Verify all players belong to the match's team
-        $playerIds = collect($playersData)->pluck('id')->toArray();
-        $validPlayers = Player::whereIn('id', $playerIds)
-            ->where('team_id', $match->team_id)
-            ->pluck('id')
-            ->toArray();
+        // Filter only players where checkbox was selected
+        $selectedPlayers = collect($playersData)
+            ->filter(function ($playerData, $playerId) {
+                return isset($playerData['selected']) && $playerData['selected'];
+            });
 
-        // If any player doesn't belong to the team, abort
-        if (count($validPlayers) !== count($playerIds)) {
-            return back()->withErrors([
-                'players' => 'One or more selected players do not belong to this team.'
-            ])->withInput();
+        // Security Check: Verify all selected players belong to the match's team
+        if ($selectedPlayers->isNotEmpty()) {
+            $playerIds = $selectedPlayers->keys()->toArray();
+            $validPlayers = Player::whereIn('id', $playerIds)
+                ->where('team_id', $match->team_id)
+                ->pluck('id')
+                ->toArray();
+
+            // If any player doesn't belong to the team, abort
+            if (count($validPlayers) !== count($playerIds)) {
+                return back()->withErrors([
+                    'players' => 'One or more selected players do not belong to this team.'
+                ])->withInput();
+            }
         }
 
         // Prepare sync data with pivot columns
         $syncData = [];
-        foreach ($playersData as $playerData) {
-            $syncData[$playerData['id']] = [
-                'goals' => $playerData['goals'],
-                'minutes_played' => $playerData['minutes_played'],
+        foreach ($selectedPlayers as $playerId => $playerData) {
+            $syncData[$playerId] = [
+                'goals' => $playerData['goals'] ?? 0,
+                'minutes_played' => $playerData['minutes'] ?? 0,
             ];
         }
 
