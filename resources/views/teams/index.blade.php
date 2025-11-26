@@ -1,19 +1,22 @@
 @extends('layouts.main')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-6 py-8">
     <!-- Header Section -->
-    <div class="flex justify-between items-center mb-8">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-800">My Teams</h1>
-            <p class="text-gray-600 mt-1">Manage your squads and team rosters</p>
-        </div>
-        <a href="{{ route('teams.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-200">
-            <svg class="inline-block w-5 h-5 mr-2 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+        <p class="text-gray-600">Manage your teams and track performance</p>
+    </div>
+
+    <!-- Section Title with Action -->
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Your Teams</h2>
+        <button onclick="window.location='{{ route('teams.create') }}'" class="bg-primary-500 hover:bg-primary-600 text-white font-semibold py-2.5 px-5 rounded-lg shadow transition duration-200 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
-            Create New Team
-        </a>
+            Create Team
+        </button>
     </div>
 
     @if(session('success'))
@@ -32,50 +35,54 @@
     <!-- Teams Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @foreach($teams as $team)
-        <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition duration-200 overflow-hidden">
-            <!-- Team Image/Banner -->
-            @if($team->logo)
-            <div class="h-48 bg-cover bg-center" style="background-image: url('{{ asset('storage/' . $team->logo) }}');">
-            </div>
-            @else
-            <div class="h-48 bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
-                <svg class="w-20 h-20 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                </svg>
-            </div>
-            @endif
-
-            <!-- Team Info -->
+        <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition duration-200 overflow-hidden border border-gray-100">
+            <!-- Card Content -->
             <div class="p-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-2">{{ $team->name }}</h2>
+                <!-- Team Header with Delete Icon -->
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex items-center space-x-3">
+                        <!-- Team Avatar -->
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center flex-shrink-0">
+                            <span class="text-white font-bold text-lg">{{ strtoupper(substr($team->name, 0, 2)) }}</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">{{ $team->name }}</h3>
+                        </div>
+                    </div>
+                    <!-- Delete Button -->
+                    <form action="{{ route('teams.destroy', $team) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this team?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-gray-400 hover:text-red-500 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
                 
-                @if($team->description)
-                <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ $team->description }}</p>
-                @endif
-
                 <!-- Team Stats -->
-                <div class="grid grid-cols-2 gap-4 mb-4 pt-4 border-t border-gray-200">
-                    <div class="text-center">
-                        <p class="text-2xl font-bold text-blue-600">{{ $team->players_count ?? $team->players->count() }}</p>
-                        <p class="text-xs text-gray-600 uppercase">Players</p>
+                <div class="flex items-center gap-6 mb-5">
+                    <div class="flex items-center text-gray-600">
+                        <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <span class="font-bold text-gray-900 mr-1">{{ $team->players_count ?? $team->players->count() }}</span>
+                        <span class="text-sm">Players</span>
                     </div>
-                    <div class="text-center">
-                        <p class="text-2xl font-bold text-green-600">{{ $team->matches_count ?? $team->matches->count() }}</p>
-                        <p class="text-xs text-gray-600 uppercase">Matches</p>
+                    <div class="flex items-center text-gray-600">
+                        <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <span class="font-bold text-gray-900 mr-1">{{ $team->matches_count ?? $team->matches->count() }}</span>
+                        <span class="text-sm">Matches</span>
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="flex space-x-2">
-                    <a href="{{ route('teams.show', $team) }}" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center font-semibold py-2 px-4 rounded transition duration-200">
-                        Manage Team
-                    </a>
-                    <a href="{{ route('teams.edit', $team) }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded transition duration-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                        </svg>
-                    </a>
-                </div>
+                <!-- Manage Team Button -->
+                <button onclick="window.location='{{ route('teams.show', $team) }}'" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2.5 px-4 rounded-lg transition duration-200">
+                    Manage Team
+                </button>
             </div>
         </div>
         @endforeach

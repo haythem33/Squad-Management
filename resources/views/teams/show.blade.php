@@ -1,255 +1,175 @@
 @extends('layouts.main')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-6 py-8">
     <!-- Page Header -->
-    <div class="bg-white shadow-md rounded-lg p-6 mb-8">
-        <div class="flex justify-between items-start">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ $team->name }}</h1>
-                @if($team->description)
-                    <p class="text-gray-600">{{ $team->description }}</p>
-                @endif
+    <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center space-x-4">
+            <!-- Team Avatar -->
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center flex-shrink-0">
+                <span class="text-white font-bold text-2xl">{{ strtoupper(substr($team->name, 0, 2)) }}</span>
             </div>
-            <div class="flex space-x-3">
-                <a href="{{ route('teams.edit', $team) }}" 
-                   class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
-                    Edit Team
-                </a>
-                <a href="{{ route('teams.index') }}" 
-                   class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded">
-                    Back to Teams
-                </a>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-1">{{ $team->name }}</h1>
+                <div class="flex items-center space-x-4 text-sm text-gray-600">
+                    <span class="flex items-center">
+                        <span class="font-semibold text-gray-900 mr-1">{{ $team->players->count() }}</span> Players
+                    </span>
+                    <span class="flex items-center">
+                        <span class="font-semibold text-gray-900 mr-1">{{ $team->matches->count() }}</span> Matches
+                    </span>
+                    @if($team->matches->count() > 0)
+                        @php
+                            $wins = 0;
+                            $total = $team->matches->count();
+                            $winRate = $total > 0 ? round(($wins / $total) * 100) : 0;
+                        @endphp
+                        <span class="flex items-center">
+                            Win Rate: <span class="font-semibold text-gray-900 ml-1">{{ $winRate }}%</span>
+                        </span>
+                    @endif
+                </div>
             </div>
         </div>
+        <button onclick="window.location='{{ route('teams.edit', $team) }}'" class="bg-primary-500 hover:bg-primary-600 text-white font-semibold py-2.5 px-5 rounded-lg transition">
+            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+            Edit Team
+        </button>
     </div>
 
     <!-- 2-Column Layout -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         <!-- LEFT COLUMN: Current Squad / Roster -->
-        <div class="bg-white shadow-md rounded-lg p-6">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800">Current Squad</h2>
-                <a href="{{ route('players.create', ['team_id' => $team->id]) }}" 
-                   class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded inline-flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h2 class="text-xl font-bold text-gray-900">Roster</h2>
+                <button onclick="window.location='{{ route('players.create', ['team_id' => $team->id]) }}'" class="text-primary-600 hover:text-primary-700 font-semibold text-sm flex items-center">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
-                    Add New Player
-                </a>
+                    Add Player
+                </button>
             </div>
 
             @if($team->players->count() > 0)
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Player
-                                </th>
-                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Position
-                                </th>
-                                <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Actions
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($team->players as $player)
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-4 py-4">
-                                        <div class="flex items-center">
-                                            @if($player->photo)
-                                                <img src="{{ asset('storage/' . $player->photo) }}" 
-                                                     alt="{{ $player->name }}" 
-                                                     class="h-10 w-10 rounded-full mr-3 object-cover border-2 border-gray-200">
-                                            @else
-                                                <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mr-3">
-                                                    <span class="text-white font-bold text-sm">{{ strtoupper(substr($player->name, 0, 2)) }}</span>
-                                                </div>
-                                            @endif
-                                            <div>
-                                                <div class="text-sm font-semibold text-gray-900">{{ $player->name }}</div>
-                                                @if($player->jersey_number)
-                                                    <div class="text-xs text-gray-500">#{{ $player->jersey_number }}</div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-4 py-4">
-                                        <span class="px-2 py-1 text-xs font-medium rounded-full 
-                                            @if($player->position === 'Forward') bg-red-100 text-red-800
-                                            @elseif($player->position === 'Midfielder') bg-blue-100 text-blue-800
-                                            @elseif($player->position === 'Defender') bg-green-100 text-green-800
-                                            @elseif($player->position === 'Goalkeeper') bg-yellow-100 text-yellow-800
-                                            @else bg-gray-100 text-gray-800
-                                            @endif">
-                                            {{ $player->position ?? 'N/A' }}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-4 text-right">
-                                        <a href="{{ route('players.edit', $player) }}" 
-                                           class="text-blue-600 hover:text-blue-800 font-medium text-sm">
-                                            Edit
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Squad Statistics -->
-                <div class="mt-6 pt-6 border-t border-gray-200">
-                    <div class="grid grid-cols-3 gap-4 text-center">
-                        <div>
-                            <p class="text-2xl font-bold text-blue-600">{{ $team->players->count() }}</p>
-                            <p class="text-xs text-gray-600 uppercase">Total Players</p>
+                <div class="space-y-3">
+                    @foreach($team->players as $player)
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                            <div class="flex items-center space-x-3">
+                                <!-- Player Avatar -->
+                                @if($player->photo)
+                                    <img src="{{ asset('storage/' . $player->photo) }}" 
+                                         alt="{{ $player->name }}" 
+                                         class="h-10 w-10 rounded-full object-cover border-2 border-gray-200">
+                                @else
+                                    <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                                        <span class="text-white font-bold text-sm">{{ strtoupper(substr($player->name, 0, 2)) }}</span>
+                                    </div>
+                                @endif
+                                <div>
+                                    <div class="font-semibold text-gray-900">{{ $player->name }}</div>
+                                    <div class="text-sm text-gray-500">{{ $player->position ?? 'N/A' }}</div>
+                                </div>
+                            </div>
+                            <button onclick="window.location='{{ route('players.edit', $player) }}'" class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            </button>
                         </div>
-                        <div>
-                            <p class="text-2xl font-bold text-green-600">
-                                {{ $team->players->where('position', 'Forward')->count() }}
-                            </p>
-                            <p class="text-xs text-gray-600 uppercase">Forwards</p>
-                        </div>
-                        <div>
-                            <p class="text-2xl font-bold text-purple-600">
-                                {{ $team->players->where('position', 'Defender')->count() }}
-                            </p>
-                            <p class="text-xs text-gray-600 uppercase">Defenders</p>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             @else
                 <div class="text-center py-12 bg-gray-50 rounded-lg">
-                    <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                     </svg>
-                    <p class="text-gray-600 font-medium mb-4">No players in this squad yet</p>
-                    <a href="{{ route('players.create', ['team_id' => $team->id]) }}" 
-                       class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded">
+                    <p class="text-gray-500 mb-4">No players in this squad yet</p>
+                    <button onclick="window.location='{{ route('players.create', ['team_id' => $team->id]) }}'" class="bg-primary-500 hover:bg-primary-600 text-white font-semibold py-2 px-6 rounded-lg transition">
                         Add Your First Player
-                    </a>
+                    </button>
                 </div>
             @endif
         </div>
 
         <!-- RIGHT COLUMN: Match Schedule / Fixtures -->
-        <div class="bg-white shadow-md rounded-lg p-6">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800">Fixtures</h2>
-                <a href="{{ route('matches.create', ['team_id' => $team->id]) }}" 
-                   class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded inline-flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h2 class="text-xl font-bold text-gray-900">Fixtures</h2>
+                <button onclick="window.location='{{ route('matches.create', ['team_id' => $team->id]) }}'" class="text-primary-600 hover:text-primary-700 font-semibold text-sm flex items-center">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
                     Schedule Match
-                </a>
+                </button>
             </div>
 
             @if($team->matches->count() > 0)
-                <div class="space-y-4">
+                <div class="space-y-3">
                     @foreach($team->matches as $match)
-                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow bg-gray-50">
-                            <div class="flex justify-between items-start mb-3">
-                                <div class="flex-1">
-                                    <div class="flex items-center mb-2">
-                                        <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                        </svg>
-                                        <h3 class="text-lg font-bold text-gray-800">
-                                            vs {{ $match->opponent }}
-                                        </h3>
+                        @php
+                            $matchDate = \Carbon\Carbon::parse($match->match_date);
+                            $isUpcoming = $matchDate->isFuture();
+                        @endphp
+                        <div class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold text-primary-600">{{ $matchDate->format('d') }}</div>
+                                        <div class="text-xs font-semibold text-gray-500 uppercase">{{ $matchDate->format('M') }}</div>
                                     </div>
-                                    
-                                    <div class="flex items-center text-sm text-gray-600 mb-1">
-                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                        </svg>
-                                        {{ \Carbon\Carbon::parse($match->match_date)->format('F j, Y - g:i A') }}
+                                    <div>
+                                        <h3 class="font-semibold text-gray-900">Vs {{ $match->opponent }}</h3>
+                                        <p class="text-sm text-gray-500">{{ $matchDate->format('g:i A') }}</p>
                                     </div>
-
-                                    @if($match->location)
-                                        <div class="flex items-center text-sm text-gray-600">
-                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            </svg>
-                                            {{ $match->location }}
-                                        </div>
-                                    @endif
                                 </div>
-
-                                <!-- Match Status Badge -->
-                                @php
-                                    $matchDate = \Carbon\Carbon::parse($match->match_date);
-                                    $isUpcoming = $matchDate->isFuture();
-                                    $isPast = $matchDate->isPast();
-                                @endphp
-                                <span class="px-3 py-1 text-xs font-semibold rounded-full
-                                    {{ $isUpcoming ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' }}">
-                                    {{ $isUpcoming ? 'Upcoming' : 'Completed' }}
+                                <span class="px-3 py-1 text-xs font-bold rounded-full {{ $isUpcoming ? 'bg-primary-100 text-primary-700' : 'bg-gray-200 text-gray-600' }}">
+                                    {{ $isUpcoming ? 'Upcoming' : 'Played' }}
                                 </span>
                             </div>
-
-                            <!-- Lineup Summary -->
+                            
                             @if($match->players->count() > 0)
-                                <div class="flex items-center justify-between bg-white rounded p-3 mb-3 text-sm">
-                                    <div class="flex items-center space-x-4">
-                                        <div>
-                                            <span class="text-gray-600">Players:</span>
-                                            <span class="font-semibold text-gray-900">{{ $match->players->count() }}</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-gray-600">Goals:</span>
-                                            <span class="font-semibold text-green-600">{{ $match->players->sum('pivot.goals') }}</span>
-                                        </div>
-                                    </div>
+                                <div class="flex items-center gap-4 text-xs text-gray-600 mb-3">
+                                    <span class="flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                        </svg>
+                                        <span class="font-semibold text-gray-900">{{ $match->players->count() }}</span>
+                                    </span>
+                                    <span class="flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        Goals: <span class="font-semibold text-gray-900 ml-1">{{ $match->players->sum('pivot.goals') }}</span>
+                                    </span>
+                                    <span class="flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        Minutes: <span class="font-semibold text-gray-900 ml-1">{{ $match->players->sum('pivot.minutes_played') }}</span>
+                                    </span>
                                 </div>
                             @endif
-
-                            <!-- Action Buttons -->
-                            <div class="flex space-x-2">
-                                <a href="{{ route('matches.show', $match) }}" 
-                                   class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center font-semibold py-2 px-4 rounded text-sm">
-                                    Manage Lineup
-                                </a>
-                                <a href="{{ route('matches.edit', $match) }}" 
-                                   class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded text-sm">
-                                    Edit
-                                </a>
-                            </div>
+                            
+                            <button onclick="window.location='{{ route('matches.show', $match) }}'" class="w-full bg-white border border-gray-200 hover:border-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg transition">
+                                View Profile
+                            </button>
                         </div>
                     @endforeach
                 </div>
-
-                <!-- Match Statistics -->
-                <div class="mt-6 pt-6 border-t border-gray-200">
-                    <div class="grid grid-cols-2 gap-4 text-center">
-                        <div>
-                            <p class="text-2xl font-bold text-blue-600">{{ $team->matches->count() }}</p>
-                            <p class="text-xs text-gray-600 uppercase">Total Matches</p>
-                        </div>
-                        <div>
-                            <p class="text-2xl font-bold text-green-600">
-                                {{ $team->matches->filter(fn($m) => \Carbon\Carbon::parse($m->match_date)->isFuture())->count() }}
-                            </p>
-                            <p class="text-xs text-gray-600 uppercase">Upcoming</p>
-                        </div>
-                    </div>
-                </div>
             @else
                 <div class="text-center py-12 bg-gray-50 rounded-lg">
-                    <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
-                    <p class="text-gray-600 font-medium mb-4">No matches scheduled yet</p>
-                    <a href="{{ route('matches.create', ['team_id' => $team->id]) }}" 
-                       class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded">
+                    <p class="text-gray-500 mb-4">No matches scheduled yet</p>
+                    <button onclick="window.location='{{ route('matches.create', ['team_id' => $team->id]) }}'" class="bg-primary-500 hover:bg-primary-600 text-white font-semibold py-2 px-6 rounded-lg transition">
                         Schedule Your First Match
-                    </a>
+                    </button>
                 </div>
             @endif
         </div>

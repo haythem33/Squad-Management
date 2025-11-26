@@ -13,18 +13,18 @@
                         @csrf
 
                         <div class="mb-4">
-                            <label for="opponent_name" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="opponent" class="block text-sm font-medium text-gray-700 mb-2">
                                 Opponent Name
                             </label>
                             <input 
                                 type="text" 
-                                name="opponent_name" 
-                                id="opponent_name" 
-                                value="{{ old('opponent_name') }}"
+                                name="opponent" 
+                                id="opponent" 
+                                value="{{ old('opponent') }}"
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                 required
                             >
-                            @error('opponent_name')
+                            @error('opponent')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
