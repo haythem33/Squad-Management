@@ -4,30 +4,31 @@
 <div class="container mx-auto px-6 py-8">
     <!-- Page Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Lineup Editor</h1>
-        <p class="text-gray-600">Select players and track match statistics</p>
+        <h1 class="text-4xl font-bold text-gray-900 mb-3">Lineup Editor</h1>
+        <p class="text-gray-600 text-lg">Select players and track match statistics</p>
     </div>
 
     <!-- Match Info Card -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+    <div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl shadow-lg p-7 mb-8">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-xl font-bold text-gray-900 mb-2">Match: {{ $match->team->name }} vs {{ $match->opponent }}</h2>
-                <p class="text-sm text-gray-600">
+                <h2 class="text-2xl font-bold text-white mb-2">{{ $match->team->name }} vs {{ $match->opponent }}</h2>
+                <p class="text-primary-100 font-medium">
                     {{ \Carbon\Carbon::parse($match->match_date)->format('F j, Y - g:i A') }}
                 </p>
                 @if($match->location)
-                    <p class="text-sm text-gray-500 mt-1">
-                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <p class="text-primary-100 mt-2 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                         </svg>
                         {{ $match->location }}
                     </p>
                 @endif
             </div>
-            <div class="text-right">
-                <div class="text-sm text-gray-600 mb-2">
-                    <span class="font-semibold text-gray-900" id="selectedCount">{{ $match->players->count() }}</span> players selected
+            <div class="text-right bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur-sm">
+                <div class="text-white">
+                    <div class="text-3xl font-bold" id="selectedCount">{{ $match->players->count() }}</div>
+                    <div class="text-primary-100 text-sm font-medium">Players Selected</div>
                 </div>
             </div>
         </div>
@@ -54,11 +55,11 @@
         @csrf
         @method('PUT')
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
             @if($match->team->players->count() > 0)
                 <!-- Table Header -->
-                <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
-                    <div class="grid grid-cols-12 gap-4 items-center font-semibold text-sm text-gray-700">
+                <div class="bg-gray-800 border-b border-gray-700 px-8 py-5">
+                    <div class="grid grid-cols-12 gap-4 items-center font-bold text-sm text-white">
                         <div class="col-span-1">Select</div>
                         <div class="col-span-5">Player Name</div>
                         <div class="col-span-2">Position</div>
@@ -74,7 +75,7 @@
                             $inLineup = $match->players->contains($player->id);
                             $pivotData = $inLineup ? $match->players->find($player->id)->pivot : null;
                         @endphp
-                        <div class="player-row px-6 py-4 hover:bg-gray-50 transition {{ $inLineup ? 'bg-primary-50' : '' }}" 
+                        <div class="player-row px-8 py-5 hover:bg-gray-50 transition-all duration-200 {{ $inLineup ? 'bg-primary-50 border-l-4 border-primary-500' : '' }}" 
                              data-player-id="{{ $player->id }}">
                             <div class="grid grid-cols-12 gap-4 items-center">
                                 <!-- Checkbox -->
@@ -82,23 +83,23 @@
                                     <input type="checkbox" 
                                            name="players[{{ $player->id }}][selected]" 
                                            value="1"
-                                           class="player-checkbox w-5 h-5 text-primary-600 focus:ring-primary-500 border-gray-300 rounded cursor-pointer"
+                                           class="player-checkbox w-6 h-6 text-primary-600 focus:ring-primary-500 border-gray-300 rounded cursor-pointer"
                                            {{ $inLineup ? 'checked' : '' }}>
                                 </div>
 
                                 <!-- Player Info -->
-                                <div class="col-span-5 flex items-center space-x-3">
+                                <div class="col-span-5 flex items-center space-x-4">
                                     @if($player->photo)
                                         <img src="{{ asset('storage/' . $player->photo) }}" 
                                              alt="{{ $player->name }}" 
-                                             class="h-10 w-10 rounded-full object-cover border-2 border-gray-200">
+                                             class="h-12 w-12 rounded-full object-cover border-2 border-white shadow-md">
                                     @else
-                                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                                            <span class="text-white font-bold text-sm">{{ strtoupper(substr($player->name, 0, 2)) }}</span>
+                                        <div class="h-12 w-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-md">
+                                            <span class="text-white font-bold">{{ strtoupper(substr($player->name, 0, 2)) }}</span>
                                         </div>
                                     @endif
                                     <div>
-                                        <div class="font-semibold text-gray-900">{{ $player->name }}</div>
+                                        <div class="font-bold text-gray-900">{{ $player->name }}</div>
                                         @if($player->jersey_number)
                                             <div class="text-xs text-gray-500">#{{ $player->jersey_number }}</div>
                                         @endif
@@ -117,7 +118,7 @@
                                            min="0" 
                                            max="20"
                                            value="{{ $pivotData->goals ?? 0 }}"
-                                           class="goals-input w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-center {{ $inLineup ? '' : 'bg-gray-100' }}"
+                                           class="goals-input w-24 px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-center font-bold text-gray-900 {{ $inLineup ? 'bg-white' : 'bg-gray-100' }}"
                                            {{ $inLineup ? '' : 'readonly' }}>
                                 </div>
 
@@ -128,7 +129,7 @@
                                            min="0" 
                                            max="120"
                                            value="{{ $pivotData->minutes_played ?? 0 }}"
-                                           class="minutes-input w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-center {{ $inLineup ? '' : 'bg-gray-100' }}"
+                                           class="minutes-input w-24 px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-center font-bold text-gray-900 {{ $inLineup ? 'bg-white' : 'bg-gray-100' }}"
                                            {{ $inLineup ? '' : 'readonly' }}>
                                 </div>
                             </div>
@@ -137,14 +138,14 @@
                 </div>
 
                 <!-- Summary Footer -->
-                <div class="bg-gray-50 border-t border-gray-200 px-6 py-4">
-                    <div class="flex justify-between items-center text-sm text-gray-600">
-                        <span><span id="selectedCountFooter" class="font-semibold text-gray-900">{{ $match->players->count() }}</span> players selected for lineup</span>
-                        <div class="flex items-center space-x-6">
-                            <button type="button" onclick="window.location='{{ route('matches.show', $match) }}'" class="px-5 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition">
+                <div class="bg-gray-800 border-t border-gray-700 px-8 py-5">
+                    <div class="flex justify-between items-center">
+                        <span class="text-white font-medium"><span id="selectedCountFooter" class="font-bold text-2xl text-primary-300">{{ $match->players->count() }}</span> <span class="text-gray-300">players in lineup</span></span>
+                        <div class="flex items-center space-x-4">
+                            <button type="button" onclick="window.location='{{ route('matches.show', $match) }}'" class="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition shadow-sm">
                                 Cancel
                             </button>
-                            <button type="submit" class="px-6 py-2.5 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition flex items-center">
+                            <button type="submit" class="px-8 py-3 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-lg transition shadow-md hover:shadow-lg flex items-center">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                 </svg>
@@ -189,17 +190,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const minutesInput = row.querySelector('.minutes-input');
         
         if (checkbox.checked) {
-            row.classList.add('bg-primary-50');
+            row.classList.add('bg-primary-50', 'border-l-4', 'border-primary-500');
             goalsInput.removeAttribute('readonly');
             goalsInput.classList.remove('bg-gray-100');
+            goalsInput.classList.add('bg-white');
             minutesInput.removeAttribute('readonly');
             minutesInput.classList.remove('bg-gray-100');
+            minutesInput.classList.add('bg-white');
         } else {
-            row.classList.remove('bg-primary-50');
+            row.classList.remove('bg-primary-50', 'border-l-4', 'border-primary-500');
             goalsInput.setAttribute('readonly', 'readonly');
             goalsInput.classList.add('bg-gray-100');
+            goalsInput.classList.remove('bg-white');
             minutesInput.setAttribute('readonly', 'readonly');
             minutesInput.classList.add('bg-gray-100');
+            minutesInput.classList.remove('bg-white');
         }
     }
     

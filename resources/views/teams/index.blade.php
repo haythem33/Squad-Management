@@ -3,20 +3,22 @@
 @section('content')
 <div class="container mx-auto px-6 py-8">
     <!-- Header Section -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-        <p class="text-gray-600">Manage your teams and track performance</p>
-    </div>
-
-    <!-- Section Title with Action -->
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-900">Your Teams</h2>
-        <button onclick="window.location='{{ route('teams.create') }}'" class="bg-primary-500 hover:bg-primary-600 text-white font-semibold py-2.5 px-5 rounded-lg shadow transition duration-200 flex items-center">
+    <div class="flex justify-between items-start mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+            <p class="text-gray-600">Manage your teams and track performance</p>
+        </div>
+        <button onclick="window.location='{{ route('teams.create') }}'" class="bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 px-6 rounded-lg shadow-sm hover:shadow transition duration-200 flex items-center">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
             Create Team
         </button>
+    </div>
+
+    <!-- Section Title -->
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Your Teams</h2>
     </div>
 
     @if(session('success'))
@@ -35,18 +37,18 @@
     <!-- Teams Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @foreach($teams as $team)
-        <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition duration-200 overflow-hidden border border-gray-100">
+        <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-200">
             <!-- Card Content -->
             <div class="p-6">
                 <!-- Team Header with Delete Icon -->
-                <div class="flex justify-between items-start mb-4">
-                    <div class="flex items-center space-x-3">
+                <div class="flex justify-between items-start mb-5">
+                    <div class="flex items-center space-x-4">
                         <!-- Team Avatar -->
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center flex-shrink-0">
-                            <span class="text-white font-bold text-lg">{{ strtoupper(substr($team->name, 0, 2)) }}</span>
+                        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center flex-shrink-0 shadow-md">
+                            <span class="text-white font-bold text-xl">{{ strtoupper(substr($team->name, 0, 2)) }}</span>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-gray-900">{{ $team->name }}</h3>
+                            <h3 class="text-xl font-bold text-gray-900">{{ $team->name }}</h3>
                         </div>
                     </div>
                     <!-- Delete Button -->
@@ -62,25 +64,25 @@
                 </div>
                 
                 <!-- Team Stats -->
-                <div class="flex items-center gap-6 mb-5">
+                <div class="flex items-center gap-6 mb-6 pb-5 border-b border-gray-100">
                     <div class="flex items-center text-gray-600">
-                        <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 mr-2 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
-                        <span class="font-bold text-gray-900 mr-1">{{ $team->players_count ?? $team->players->count() }}</span>
-                        <span class="text-sm">Players</span>
+                        <span class="font-bold text-gray-900 text-lg mr-1">{{ $team->players_count ?? $team->players->count() }}</span>
+                        <span class="text-sm text-gray-500">Players</span>
                     </div>
                     <div class="flex items-center text-gray-600">
-                        <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
-                        <span class="font-bold text-gray-900 mr-1">{{ $team->matches_count ?? $team->matches->count() }}</span>
-                        <span class="text-sm">Matches</span>
+                        <span class="font-bold text-gray-900 text-lg mr-1">{{ $team->matches_count ?? $team->matches->count() }}</span>
+                        <span class="text-sm text-gray-500">Matches</span>
                     </div>
                 </div>
 
                 <!-- Manage Team Button -->
-                <button onclick="window.location='{{ route('teams.show', $team) }}'" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2.5 px-4 rounded-lg transition duration-200">
+                <button onclick="window.location='{{ route('teams.show', $team) }}'" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md">
                     Manage Team
                 </button>
             </div>

@@ -15,8 +15,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.1/dist/cdn.min.js"></script>
 </head>
-<body class="font-sans antialiased">
-<div class="min-h-screen bg-gray-100">
+<body class="font-sans antialiased bg-gray-50">
+<div class="min-h-screen bg-gray-50">
     @include('layouts.app_navigation')
 
     <!-- Page Heading -->
