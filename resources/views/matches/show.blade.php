@@ -3,14 +3,14 @@
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <!-- Professional Match Report Header -->
-    <div class="bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg rounded-lg p-8 mb-8 text-white">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mb-8">
         <div class="flex justify-between items-start mb-6">
             <div>
-                <p class="text-blue-200 text-sm uppercase tracking-wide mb-2">Match Report</p>
-                <h1 class="text-4xl font-bold mb-3">
-                    {{ $team->name }} <span class="text-blue-200">vs</span> {{ $match->opponent }}
+                <p class="text-slate-500 text-sm uppercase tracking-wide mb-2">Match Report</p>
+                <h1 class="text-4xl font-bold text-slate-900 mb-3 tracking-tight">
+                    {{ $team->name }} <span class="text-slate-400">vs</span> {{ $match->opponent }}
                 </h1>
-                <div class="flex items-center space-x-6 text-blue-100">
+                <div class="flex items-center space-x-6 text-slate-500">
                     <div class="flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -35,27 +35,27 @@
                 </div>
             </div>
             <a href="{{ route('teams.show', $team) }}" 
-               class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-semibold py-2 px-6 rounded-lg backdrop-blur-sm transition">
+               class="bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 font-semibold py-2 px-6 rounded-lg transition">
                 ← Back to Team
             </a>
         </div>
 
         <!-- Quick Stats Bar -->
         @if($match->players->count() > 0)
-        <div class="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-blue-500 border-opacity-30">
+        <div class="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-100">
             <div class="text-center">
-                <p class="text-3xl font-bold">{{ $match->players->count() }}</p>
-                <p class="text-blue-200 text-sm uppercase tracking-wide">Players Selected</p>
+                <p class="text-3xl font-bold text-slate-900">{{ $match->players->count() }}</p>
+                <p class="text-slate-500 text-sm uppercase tracking-wide">Players Selected</p>
             </div>
             <div class="text-center">
-                <p class="text-3xl font-bold">{{ $match->players->sum('pivot.goals') }}</p>
-                <p class="text-blue-200 text-sm uppercase tracking-wide">Total Goals</p>
+                <p class="text-3xl font-bold text-slate-900">{{ $match->players->sum('pivot.goals') }}</p>
+                <p class="text-slate-500 text-sm uppercase tracking-wide">Total Goals</p>
             </div>
             <div class="text-center">
-                <p class="text-3xl font-bold">
+                <p class="text-3xl font-bold text-slate-900">
                     {{ $match->players->count() > 0 ? round($match->players->avg('pivot.minutes_played')) : 0 }}
                 </p>
-                <p class="text-blue-200 text-sm uppercase tracking-wide">Avg Minutes</p>
+                <p class="text-slate-500 text-sm uppercase tracking-wide">Avg Minutes</p>
             </div>
         </div>
         @endif
@@ -198,7 +198,7 @@
                 <p class="text-gray-600 font-semibold text-lg mb-4">No players available in this team</p>
                 <p class="text-gray-500 mb-6">Add players to your team before creating a lineup</p>
                 <a href="{{ route('players.create', ['team_id' => $team->id]) }}" 
-                   class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition">
+                   class="inline-block bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition">
                     Add Players Now
                 </a>
             </div>
@@ -211,7 +211,7 @@
     <div class="fixed bottom-8 right-8 z-50">
         <button type="submit" 
                 form="lineupForm"
-                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-full shadow-2xl hover:shadow-xl transition-all transform hover:scale-105 flex items-center space-x-3">
+                class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-8 rounded-full shadow-2xl hover:shadow-xl transition-all transform hover:scale-105 flex items-center space-x-3">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
             </svg>
