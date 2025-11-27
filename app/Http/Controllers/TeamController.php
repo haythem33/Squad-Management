@@ -18,10 +18,16 @@ class TeamController extends Controller
     {
         // Only show teams belonging to the authenticated user
         // Use eager loading to prevent N+1 queries
-        $teams = auth()->user()->teams()
-            ->withCount(['players', 'matches'])
-            ->latest()
-            ->get();
+        $query = auth()->user()->teams()
+            ->withCount(['players', 'matches']);
+
+        if (request('search')) {
+            $query->where('name', 'like', '%' . request('search') . '%');
+        }
+
+        $teams = $query->latest()
+            ->paginate(9)
+            ->appends(request()->query());
 
         return view('teams.index', compact('teams'));
     }
@@ -65,7 +71,11 @@ class TeamController extends Controller
         $this->authorize('view', $team);
 
         // Eager load relationships to prevent N+1 queries
-        $team->load(['players', 'matches' => function ($query) {
+        $team->load(['players' => function ($query) {
+            if (request('player_search')) {
+                $query->where('name', 'like', '%' . request('player_search') . '%');
+            }
+        }, 'matches' => function ($query) {
             $query->latest('match_date');
         }]);
 

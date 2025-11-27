@@ -16,9 +16,25 @@
         </button>
     </div>
 
-    <!-- Section Title -->
-    <div class="mb-6">
+    <!-- Section Title & Search -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <h2 class="text-xl font-bold text-slate-900 tracking-tight">Your Teams</h2>
+        
+        <form action="{{ route('teams.index') }}" method="GET" class="flex items-center">
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </span>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search teams..." class="pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent w-full md:w-64">
+            </div>
+            <button type="submit" class="ml-2 bg-slate-900 text-white px-4 py-2 rounded-lg hover:bg-slate-800 transition font-medium">Search</button>
+            
+            @if(request('search'))
+                <a href="{{ route('teams.index') }}" class="ml-3 text-sm text-slate-500 hover:text-slate-700 underline whitespace-nowrap">Clear Search</a>
+            @endif
+        </form>
     </div>
 
     @if(session('success'))
