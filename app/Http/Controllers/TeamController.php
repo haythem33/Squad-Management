@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTeamRequest;
 use App\Http\Requests\UpdateTeamRequest;
 use App\Models\Team;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -16,18 +17,12 @@ class TeamController extends Controller
      */
     public function index(): View
     {
-        // Only show teams belonging to the authenticated user
-        // Use eager loading to prevent N+1 queries
-        $query = auth()->user()->teams()
-            ->withCount(['players', 'matches']);
-
-        if (request('search')) {
-            $query->where('name', 'like', '%' . request('search') . '%');
-        }
-
-        $teams = $query->latest()
-            ->paginate(9)
-            ->appends(request()->query());
+        // Cache the dashboard query for 60 seconds
+        $teams = Cache::remember('user_teams_' . auth()->id(), 60, function () {
+            return auth()->user()->teams()
+                ->withCount(['players', 'matches'])
+                ->get();
+        });
 
         return view('teams.index', compact('teams'));
     }
@@ -58,6 +53,9 @@ class TeamController extends Controller
         }
 
         $team = Team::create($validated);
+
+        // Invalidate the cache
+        Cache::forget('user_teams_' . auth()->id());
 
         return redirect()->route('teams.show', $team)
             ->with('success', 'Team created successfully.');
@@ -113,6 +111,9 @@ class TeamController extends Controller
 
         $team->update($validated);
 
+        // Invalidate the cache
+        Cache::forget('user_teams_' . auth()->id());
+
         return redirect()->route('teams.show', $team)
             ->with('success', 'Team updated successfully.');
     }
@@ -130,6 +131,9 @@ class TeamController extends Controller
         }
 
         $team->delete();
+
+        // Invalidate the cache
+        Cache::forget('user_teams_' . auth()->id());
 
         return redirect()->route('teams.index')
             ->with('success', 'Team deleted successfully.');
