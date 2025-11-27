@@ -7,6 +7,8 @@ use App\Http\Requests\UpdateLineupRequest;
 use App\Http\Requests\UpdateMatchRequest;
 use App\Models\GameMatch;
 use App\Models\Player;
+use App\Mail\MatchReport;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -184,6 +186,9 @@ class MatchController extends Controller
         // Sync players with their pivot data
         // This will add new players, update existing ones, and remove players not in the array
         $match->players()->sync($syncData);
+
+        // Send Match Report Email
+        Mail::to($request->user())->send(new MatchReport($match));
 
         return redirect()->route('matches.show', $match)
             ->with('success', 'Lineup updated successfully.');
