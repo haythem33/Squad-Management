@@ -34,20 +34,32 @@ class FootballDataService
         try {
             // If no API Key matches the environment variable, authorize fallback immediately
             if (empty($this->apiKey)) {
+                Log::info('Football API: Key missing, using mock data.');
                 return $this->getMockData();
             }
 
             // External API Call with timeout and headers
+            // Using a specific date range (+7 days) to ensure we get some matches on the free tier
             $response = Http::withHeaders([
                 'X-Auth-Token' => $this->apiKey,
             ])
-            ->timeout(5) // Fail fast if API hangs
+            ->timeout(10) 
             ->get($this->baseUrl . 'matches', [
-                // 'status' => 'SCHEDULED', // Optional filters
+                'dateFrom' => now()->format('Y-m-d'),
+                'dateTo' => now()->addDays(7)->format('Y-m-d'),
             ]);
 
             if ($response->successful()) {
                 $data = $response->json();
+                
+                // Log success for debugging
+                Log::info('Football API Success: retrieved ' . count($data['matches'] ?? []) . ' matches.');
+
+                if (empty($data['matches'])) {
+                     Log::info('Football API: No matches found in range, falling back to mock to show UI.');
+                     return $this->getMockData();
+                }
+
                 return $data['matches'] ?? [];
             }
 
