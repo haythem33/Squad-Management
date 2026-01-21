@@ -10,6 +10,8 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
-    Route::apiResource('teams', TeamController::class);
-    Route::apiResource('players', PlayerController::class);
+    Route::name('api.')->group(function () {
+        Route::apiResource('teams', TeamController::class);
+        Route::apiResource('players', PlayerController::class);
+    });
 });
