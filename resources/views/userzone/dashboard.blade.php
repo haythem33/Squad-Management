@@ -51,17 +51,14 @@
             </div>
 
             <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Activity Feed -->
-                <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                    <h3 class="text-lg font-bold text-slate-900 mb-4">Your Recent Activity</h3>
-                    <div class="text-slate-500 text-sm">
-                        <p>No recent activity found. Start by creating a team or scheduling a match.</p>
-                    </div>
+                <!-- Player Search & List (Detailed Interactive Component) -->
+                <div class="lg:col-span-2">
+                    <livewire:player-search />
                 </div>
 
-                <!-- API Widget -->
+                <!-- API Widget (Detailed API Component) -->
                 <div class="lg:col-span-1">
-                     <x-external-football-widget />
+                     <livewire:external-football-matches />
                 </div>
             </div>
         </div>
