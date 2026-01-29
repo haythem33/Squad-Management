@@ -6,9 +6,7 @@ use App\Http\Requests\StoreMatchRequest;
 use App\Http\Requests\UpdateLineupRequest;
 use App\Http\Requests\UpdateMatchRequest;
 use App\Models\GameMatch;
-use App\Models\Player;
-use App\Mail\MatchReport;
-use Illuminate\Support\Facades\Mail;
+use App\Services\MatchService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -144,51 +142,17 @@ class MatchController extends Controller
 
     /**
      * Update the lineup for the match.
-     * This is the crucial method that syncs players to the match with pivot data.
+     * Delegates complex logic to MatchService.
      */
-    public function updateLineup(UpdateLineupRequest $request, GameMatch $match): RedirectResponse
+    public function updateLineup(UpdateLineupRequest $request, GameMatch $match, MatchService $matchService): RedirectResponse
     {
         $this->authorize('manageLineup', $match);
 
-        $playersData = $request->validated()['players'] ?? [];
-
-        // Filter only players where checkbox was selected
-        $selectedPlayers = collect($playersData)
-            ->filter(function ($playerData, $playerId) {
-                return isset($playerData['selected']) && $playerData['selected'];
-            });
-
-        // Security Check: Verify all selected players belong to the match's team
-        if ($selectedPlayers->isNotEmpty()) {
-            $playerIds = $selectedPlayers->keys()->toArray();
-            $validPlayers = Player::whereIn('id', $playerIds)
-                ->where('team_id', $match->team_id)
-                ->pluck('id')
-                ->toArray();
-
-            // If any player doesn't belong to the team, abort
-            if (count($validPlayers) !== count($playerIds)) {
-                return back()->withErrors([
-                    'players' => 'One or more selected players do not belong to this team.'
-                ])->withInput();
-            }
+        try {
+            $matchService->updateLineup($match, $request->validated(), $request->user());
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
         }
-
-        // Prepare sync data with pivot columns
-        $syncData = [];
-        foreach ($selectedPlayers as $playerId => $playerData) {
-            $syncData[$playerId] = [
-                'goals' => $playerData['goals'] ?? 0,
-                'minutes_played' => $playerData['minutes'] ?? 0,
-            ];
-        }
-
-        // Sync players with their pivot data
-        // This will add new players, update existing ones, and remove players not in the array
-        $match->players()->sync($syncData);
-
-        // Send Match Report Email
-        Mail::to($request->user())->send(new MatchReport($match));
 
         return redirect()->route('matches.show', $match)
             ->with('success', 'Lineup updated successfully.');
